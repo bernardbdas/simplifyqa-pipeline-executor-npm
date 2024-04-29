@@ -1,5 +1,5 @@
-export type SayHelloProps = {
-  fname?: string;
+export type ExecutionData = {
+  token?: string;
   lname?: string;
   age?: number;
 };
