@@ -5,6 +5,8 @@ import {
   getExecStatusData,
   killExecData,
   ExecutionStatus,
+  ExecutionData,
+  getExecutionStatus,
 } from "../models/ExecutionDataTypes";
 import axios, { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import { ConnHandler } from "./ConnHandlerImpl";
@@ -53,26 +55,16 @@ class ExecutionImpl implements Execution {
 
   private exec_status: ExecutionStatus = ExecutionStatus.UNINITIALIZED;
 
-  constructor({
-    exec_token,
-    env,
-    threshold,
-    verbose,
-  }: {
-    exec_token: string;
-    env?: string;
-    threshold?: number;
-    verbose?: boolean;
-  }) {
-    this.setExecToken(exec_token);
+  constructor(data: ExecutionData) {
+    this.setExecToken(data.exec_token);
 
-    if ((env != undefined && env.length > 1) || env === "") {
-      this.setEnv(env);
+    if ((data.env != undefined && data.env.length > 1) || data.env === "") {
+      this.setEnv(data.env);
     } else console.log("ERR: Invalid Environment value entered!");
 
-    if (threshold != undefined) this.setThreshold(threshold);
+    if (data.threshold != undefined) this.setThreshold(data.threshold);
 
-    if (verbose != undefined) this.setVerbose(verbose);
+    if (data.verbose != undefined) this.setVerbose(data.verbose);
 
     this.setAppUrl(this.env);
     this.setBuildApi(this.env + this.build_api);
@@ -244,7 +236,7 @@ class ExecutionImpl implements Execution {
     return this.suite_id;
   }
 
-  protected setExecStatus(exec_status: string): void {
+  protected setExecStatus(exec_status: ExecutionStatus): void {
     this.exec_status = exec_status;
   }
 
@@ -476,7 +468,7 @@ class ExecutionImpl implements Execution {
           this.setTotalTcs(response_data.data.data.totalTestcases);
           this.setSuiteId(response_data.data.data.suiteId);
           this.setReportUrl(response_data.data.data.reporturl);
-          this.setExecStatus(response_data.data.data.execution);
+          this.setExecStatus(getExecutionStatus(response_data.data.data.execution));
           this.setUserId(response_data.data.data.userId);
           this.setUserName(response_data.data.data.username);
           this.setFailPercent();
